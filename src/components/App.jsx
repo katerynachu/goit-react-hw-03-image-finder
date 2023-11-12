@@ -16,6 +16,7 @@ export class App extends Component {
     page: 1,
     isLoading: false,
     submitted: false,
+    total:0,
   };
   async fetchImages(query, page) {
     try {
@@ -27,12 +28,14 @@ export class App extends Component {
       this.setState(prevState => ({
         images: [...prevState.images, ...data.hits],
         page: prevState.page + 1,
+        total:data.total,
       }));
     } catch (error) {
       toast.error('Error fetching images:', error);
     } finally {
       this.setState({
         isLoading: false,
+       
       });
     }
   }
@@ -72,7 +75,7 @@ export class App extends Component {
             !this.state.isLoading &&
             this.state.images.length === 0 && <p>No images found</p>}
 
-          {this.state.images.length >= 12 && (
+          {this.state.images.length >= 12 && this.state.images.length < this.state.total && (
             <LoadMore onClick={this.handleLoadMore} />
           )}
           {this.state.isLoading && <Loader/>}
