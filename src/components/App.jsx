@@ -14,18 +14,15 @@ export class App extends Component {
     images: [],
     query: '',
     page: 1,
-    isLoading:false,
+    isLoading: false,
     submitted: false,
-
   };
-
-
-
   async fetchImages(query, page) {
     try {
       this.setState({
-        isLoading:true,
-      })
+        isLoading: true,
+      });
+
       const data = await getData(query, page);
       this.setState(prevState => ({
         images: [...prevState.images, ...data.hits],
@@ -33,13 +30,11 @@ export class App extends Component {
       }));
     } catch (error) {
       toast.error('Error fetching images:', error);
-    }
-    finally{
+    } finally {
       this.setState({
-        isLoading:false
-      })
+        isLoading: false,
+      });
     }
-
   }
   updateQuery = event => {
     const newQuery = event.target.value;
@@ -57,6 +52,9 @@ export class App extends Component {
     });
 
     const { query } = this.state;
+    if (query.trim() === '') {
+      return;
+    }
     this.fetchImages(query, 1);
   };
   handleLoadMore = () => {
@@ -67,23 +65,21 @@ export class App extends Component {
   render() {
     return (
       <>
-      <AppItem>
-        <Searchbar onSubmit={this.handleSubmit} onChange={this.updateQuery} />
-        <ImageGAllery images={this.state.images}></ImageGAllery>
-        {this.state.submitted && this.state.images.length === 0 && (
-          
-            <p>No images found</p>
-          )}
+        <AppItem>
+          <Searchbar onSubmit={this.handleSubmit} onChange={this.updateQuery} />
+          <ImageGAllery images={this.state.images}></ImageGAllery>
+          {this.state.submitted &&
+            !this.state.isLoading &&
+            this.state.images.length === 0 && <p>No images found</p>}
 
-        {this.state.images.length > 12 && (
-          <LoadMore onClick={this.handleLoadMore} />
-        )}
-        {this.state.isLoading && <Loader/>}
-        <GlobalStyle/>
-        <Toaster />
-      </AppItem>
+          {this.state.images.length > 12 && (
+            <LoadMore onClick={this.handleLoadMore} />
+          )}
+          {this.state.isLoading && <Loader/>}
+          <GlobalStyle/>
+          <Toaster />
+        </AppItem>
       </>
-      
     );
   }
 }
