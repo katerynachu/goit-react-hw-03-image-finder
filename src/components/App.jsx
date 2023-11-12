@@ -72,7 +72,7 @@ export class App extends Component {
             !this.state.isLoading &&
             this.state.images.length === 0 && <p>No images found</p>}
 
-          {this.state.images.length > 12 && (
+          {this.state.images.length >= 12 && (
             <LoadMore onClick={this.handleLoadMore} />
           )}
           {this.state.isLoading && <Loader/>}
