@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { Loader } from 'components/Loader/Loader';
 
@@ -16,43 +16,37 @@ const customStyles = {
 };
 Modal.setAppElement('#root');
 
-export default class MyModal extends Component {
+export const MyModal = ({ image, closeModal }) => {
+  const [isLoading, setIsLoading] = useState(true);
 
-  state = {
-    isLoading: true,
-  }
+  const handleLoader = () => {
+    setIsLoading(false);
+  };
 
-  handleLoader = () => {
-    this.setState({
-      isLoading: false
-    });
-  }
-
-  componentDidMount() {
-    const { image } = this.props;
+  useEffect(() => {
     const img = new Image();
     img.src = image.largeImageURL;
-    img.onload = this.handleLoader;
-  }
+    img.onload = handleLoader;
 
-  render() {
-    const { image, closeModal } = this.props;
+    return () => {
+      img.onload = null;
+    };
+  }, [image.largeImageURL]);
 
-    return (
-      <Modal
-        isOpen={true}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="modal window with image"
-      >
-        {this.state.isLoading && <Loader />}
-        {!this.state.isLoading && (
-          <img
-            src={image.largeImageURL}
-            alt={image.id}
-          />
-        )}
-      </Modal>
-    );
-  }
-}
+  return (
+    <Modal
+      isOpen={true}
+      onRequestClose={closeModal}
+      style={customStyles}
+      contentLabel="modal window with image"
+    >
+      {isLoading && <Loader />}
+      {!isLoading && (
+        <img
+          src={image.largeImageURL}
+          alt={image.id}
+        />
+      )}
+    </Modal>
+  );
+};

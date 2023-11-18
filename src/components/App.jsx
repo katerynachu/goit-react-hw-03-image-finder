@@ -1,88 +1,73 @@
-import { Component } from 'react';
+import React, { useState,useEffect } from "react";
 import toast, { Toaster } from 'react-hot-toast';
 
 import { GlobalStyle } from './GlobalStyle/GlobalStyle';
 import { Searchbar } from './Searchbar/Searchbar';
-import { ImageGAllery } from './ImageGallery/ImageGallery';
+import {ImageGAllery} from './ImageGallery/ImageGallery';
 import { getData } from './utils/getData';
 import { LoadMore } from './LoadMore/LoadMore';
 import { Loader } from './Loader/Loader';
 import { AppItem } from './App.styled';
 
-export class App extends Component {
-  state = {
-    images: [],
-    query: '',
-    page: 1,
-    isLoading: false,
-    submitted: false,
-    total:0,
-  };
-  async fetchImages(query, page) {
+export const App = () => {
+  const [images, setImages] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [total, setTotal] = useState(0);
+
+
+  const fetchImages = async () => {
     try {
-      this.setState({
-        isLoading: true,
-      });
+      setIsLoading(true);
 
       const data = await getData(query, page);
-      this.setState(prevState => ({
-        images: [...prevState.images, ...data.hits],
-        page: prevState.page + 1,
-        total:data.total,
-      }));
+      setImages((prevImages) => [...prevImages, ...data.hits]);
+      setPage((prevPage) => prevPage + 1);
+      setTotal(data.total);
     } catch (error) {
-      toast.error('Error fetching images:', error);
+      toast.error("Error fetching images:", error);
     } finally {
-      this.setState({
-        isLoading: false,
-       
-      });
+      setIsLoading(false);
     }
-  }
-  updateQuery = event => {
+  };
+
+  useEffect(() => {
+    if (submitted) {
+      setImages([]);
+      setPage(1);
+      fetchImages();
+      setSubmitted(false);
+    }
+  }, [query, page, submitted]);
+
+   const updateQuery = (event) => {
     const newQuery = event.target.value;
-    this.setState({
-      query: newQuery,
-    });
+    setQuery(newQuery);
   };
 
-  handleSubmit = event => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    this.setState({
-      images: [],
-      page: 1,
-      submitted: true,
-    });
-
-    const { query } = this.state;
-    if (query.trim() === '') {
-      return;
-    }
-    this.fetchImages(query, 1);
-  };
-  handleLoadMore = () => {
-    const { query, page } = this.state;
-    this.fetchImages(query, page);
+    setSubmitted(true);
   };
 
-  render() {
-    return (
-      <>
-        <AppItem>
-          <Searchbar onSubmit={this.handleSubmit} onChange={this.updateQuery} />
-          <ImageGAllery images={this.state.images}></ImageGAllery>
-          {this.state.submitted &&
-            !this.state.isLoading &&
-            this.state.images.length === 0 && <p>No images found</p>}
+  const handleLoadMore = () => {
+    fetchImages();
+  };
 
-          {this.state.images.length >= 12 && this.state.images.length < this.state.total && (
-            <LoadMore onClick={this.handleLoadMore} />
-          )}
-          {this.state.isLoading && <Loader/>}
-          <GlobalStyle/>
-          <Toaster />
-        </AppItem>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <AppItem>
+        <Searchbar onSubmit={handleSubmit} onChange={updateQuery} />
+        <ImageGAllery images={images} />
+        {submitted && !isLoading && images.length === 0 && <p>No images found</p>}
+
+        {images.length >= 12 && images.length < total && <LoadMore onClick={handleLoadMore} />}
+        {isLoading && <Loader />}
+        <GlobalStyle />
+        <Toaster />
+      </AppItem>
+    </>
+  );
+};
