@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useRef } from "react";
 import toast, { Toaster } from 'react-hot-toast';
 
 import { GlobalStyle } from './GlobalStyle/GlobalStyle';
@@ -32,15 +32,15 @@ export const App = () => {
       setIsLoading(false);
     }
   };
-
+  const fetchImagesRef = useRef(fetchImages);
   useEffect(() => {
     if (submitted) {
       setImages([]);
       setPage(1);
-      fetchImages();
+      fetchImagesRef.current();
       setSubmitted(false);
     }
-  }, [query, page, submitted]);
+  }, [submitted, fetchImagesRef]);
 
    const updateQuery = (event) => {
     const newQuery = event.target.value;
