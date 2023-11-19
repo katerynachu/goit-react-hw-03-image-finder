@@ -1,4 +1,4 @@
-import React, { useState,useEffect,useRef } from "react";
+import React, { useState,useEffect} from "react";
 import toast, { Toaster } from 'react-hot-toast';
 
 import { GlobalStyle } from './GlobalStyle/GlobalStyle';
@@ -17,8 +17,13 @@ export const App = () => {
   const [submitted, setSubmitted] = useState(false);
   const [total, setTotal] = useState(0);
 
+  useEffect(() => {
+    if (submitted && query.trim() !== '') {
+      fetchImages(query, 1);
+    }
+  }, [query, submitted]);
 
-  const fetchImages = async () => {
+  const fetchImages = async (query, page) => {
     try {
       setIsLoading(true);
 
@@ -27,33 +32,27 @@ export const App = () => {
       setPage((prevPage) => prevPage + 1);
       setTotal(data.total);
     } catch (error) {
-      toast.error("Error fetching images:", error);
+      toast.error('Error fetching images:', error);
     } finally {
       setIsLoading(false);
     }
   };
-  const fetchImagesRef = useRef(fetchImages);
-  useEffect(() => {
-    if (submitted) {
-      setImages([]);
-      setPage(1);
-      fetchImagesRef.current();
-      setSubmitted(false);
-    }
-  }, [submitted, fetchImagesRef]);
 
-   const updateQuery = (event) => {
+
+  const updateQuery = (event) => {
     const newQuery = event.target.value;
     setQuery(newQuery);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setImages([]);
+    setPage(1);
     setSubmitted(true);
   };
 
   const handleLoadMore = () => {
-    fetchImages();
+    fetchImages(query, page);
   };
 
   return (

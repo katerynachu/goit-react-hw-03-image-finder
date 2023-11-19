@@ -4,13 +4,16 @@ import { toast } from "react-hot-toast";
 const API_KEY = '39726621-0de1827bbfc07c5637e439509';
 
 export async function getData(query, page) {
+
     try {
         const options = {
             method: 'GET',
-            url: `https://pixabay.com/api/?page=${page}&per_page=12`,
+            url: 'https://pixabay.com/api/',
             params: {
                 key: API_KEY,
                 q: query,
+                page: page,
+                per_page: 12,
                 image_type: 'photo',
                 orientation: 'horizontal',
                 safesearch: true
